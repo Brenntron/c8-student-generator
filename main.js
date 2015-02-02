@@ -1,21 +1,19 @@
 'use strict';
 
+var $input = $('input'),
+    $ul    = $('ul'),
+    url   = 'https://yspuku7qvh9u4cr3.firebaseio.com/.json';
 
-var input = document.querySelector('input'),
-    ul    = document.querySelector('ul'),
-    url   = 'https://yspuku7qvh9u4cr3.firebaseio.com/.json',
-    _     = require('lodash');
-
-input.addEventListener('change', getUpdateAndSplit);
+$input.change(getUpdateAndSplit);
 document.addEventListener('DOMContentLoaded', getUpdateAndSplit);
 
 function getUpdateAndSplit(){
-  var count = input.value;
-  
-  ul.innerHTML = '';
+  var count = $input.val();
+
+  $ul.empty();
   getJSON(url, function(res){
     var chunkedStudents = chunkData(res['c8-students'], count);
-    ul.appendChild(createList(chunkedStudents));
+    $ul.append(createList(chunkedStudents));
   });
 };
 
@@ -30,33 +28,31 @@ function chunkData(data, count){
 }
 
 function createList(array) {
-  var docFragment = document.createDocumentFragment();
+  var groupList = [];
+
 
   _.forEach(array, function(team){
-    var ol = document.createElement('ol');
-    
+    var $ol = $('<ol></ol>')
+
     _.forEach(team, function(teamMember){
-      var li = document.createElement('li');
-      var text = document.createTextNode(teamMember);
-      li.appendChild(text);
-      ol.appendChild(li);
+      var $li = $('<li></li>')
+      $li.text(teamMember);
+      $ol.append($li);
     })
-    
-    docFragment.appendChild(ol);
+    groupList.push($ol);
   })
-  
-  return docFragment;
+  return groupList;
 }
 
 function getJSON(url, cb) {
   var xhr = new XMLHttpRequest();
   xhr.open('GET', url);
-  
+
   xhr.onload = function () {
     if (this.status >= 200 && this.status < 400) {
       cb(JSON.parse(this.response));
     }
   };
-  
+
   xhr.send()
 }
